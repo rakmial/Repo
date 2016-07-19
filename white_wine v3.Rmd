@@ -168,7 +168,7 @@ wwines$rating<- factor(wwines$rating,levels=c('Poor','Fair','Good'))
 summary(wwines$rating)
 ```
 
-# Bivariate Exploration & Analysis
+# Multivariate Exploration & Analysis
 
 ### Pearson's R - Bivariate Tests for Correlation
 ```{r echo=FALSE,message=FALSE,warning=FALSE,fig.height=10,fig.width=10}
@@ -208,6 +208,7 @@ ggplot(aes(x=residual.sugar,y=density,color=as.factor(quality)),data=wwines)+
 
 ggplot(aes(x=total.sulfur.dioxide,y=free.sulfur.dioxide),data=wwines)+
   geom_point()+
+  geom_smooth()+
   scale_x_continuous(limits=c(0,300))+
   scale_y_continuous(limits=c(0,150))
 
@@ -219,7 +220,7 @@ ggplot(aes(x=total.sulfur.dioxide,y=free.sulfur.dioxide),data=wwines)+
 
 Nevertheless, at this initial bivariate stage of analysis, the most highly correlated variable for quality is alcohol. Obvious jokes aside, there may be many reasons for this - for example, lower levels of yeast activity resulting in higher residual sugar levels. It also seems likely that the perception of a wine's quality is likely based in interaction effects between many variables - effects that will become more clear in our multivariate model.
 
-### Sulfur Dioxide Ratio
+### Create Sulfur Dioxide Ratio
 Let's create the ratio between Free Sulfur Dioxide and Total Sulfur Dioxide.
 
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
@@ -262,7 +263,6 @@ Our boxplot reveals that the alcohol contents for wines with Poor and Fair ratin
 
 Looking at the density of values in our jittered scatterplot, we may observe that the negative correlation between density and quality is largely made between quality levels 5, 6, and 7. The densest grouping of values within each quality level really reflects our correlation finding, and you can see the pattern a little bit in our less-represented categories as well - quality level 8, for example, has a very similar distribution of density to quality level 4, except that there are far fewer values above 0.996. Our few, most highly rated wines (quality 9) are mostly clustered around 0.990.
 
-# Multivariate Exploration & Analysis
 
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 
@@ -351,32 +351,36 @@ ggplot(aes(x=sulphates,y=chlorides,color=rating),data=subset(wwines,wwines$ratin
   geom_smooth()+
   scale_y_continuous(limits=c(0,0.1))+
   scale_x_continuous(limits=c(0.2,0.8))+
-  xlab('Sulphates: g/L')+
-  ylab('Chlorides: g/L')+
+  scale_color_discrete(name='Rating')+
+  xlab('Sulphates: g/dm^3')+
+  ylab('Chlorides: g/dm^3')+
   ggtitle('Sulphates and Chlorides Compared between Poor and Good Wines')
 
 ```
 
-The first plot is a lesson in spurious correlation - I had created this plot before running the fourth model that includes every independent variable. The smoothers help us to see the difference in covariation between sulphates and chlorides between wines of Poor and Good quality, with the difference in means between the two ratings along the y-axis seeming pretty substantial. However, in light of the full model, chlorides failed to be a statistically significant predicting variable.
+The first plot is a lesson in spurious correlation - I had created this plot before running the fourth model that includes every independent variable. The smoothers help us to see the difference in covariation between sulphates and chlorides between wines of Poor and Good quality - there seems to be a consistently higher level of chlorides in Poor wines versus Good wines. However, in light of the full model, chlorides failed to be a statistically significant predicting variable.
 
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(x=alcohol,y=residual.sugar,color=as.factor(quality)),data=wwines)+
   geom_jitter(width=.3,height=.3)+
   scale_y_continuous(limits=c(0,20))+
   theme_dark()+
-  scale_color_brewer(type='seq')+
-  ylab('Residual Sugar: g/L')+
-  xlab('Alcohol: %')+
+  scale_color_brewer(type='seq',name='Quality')+
+  ylab('Residual Sugar: g/dm^3')+
+  xlab('Alcohol: % by volume')+
   ggtitle('Residual Sugar and Alcohol Across Quality')
 ```
 
 The second plot shows another side of the predictive quality of alcohol content. The whole of the graph shows a clear right-triangular shape - as we explored in our panel pairs, there is a solid negative correlation between residual sugar and alcohol content. This plot also shows some of the internal structure of the triangle by coloring points by their quality scores. Along the left, vertical edge of the triangle, most of the points are a light blue, indicating a low score in quality. However, as alcohol increases, tolerance for residual sugar seems to increase - even points high in the Y-axis become darker as we travel to the right on the X-axis.
 
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
+
 ggplot(aes(x=quality,y=alcohol,color=rating),data=wwines)+
-  geom_boxplot(size=1)+
   geom_jitter(width=1)+
-  ylab('Alcohol: %')+
+  geom_boxplot(size=1)+
+  scale_color_brewer(type='seq',palette = 4,name='Rating')+
+  theme_dark()+
+  ylab('Alcohol: % by volume')+
   xlab('Quality: Ordered Integer Rating')+
   ggtitle('Quality and Alcohol')
 
